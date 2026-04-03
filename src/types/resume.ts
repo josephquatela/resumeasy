@@ -90,7 +90,10 @@ export type FontFamily = 'Georgia' | 'Garamond' | 'Merriweather' | 'Lato' | 'Sou
 
 export interface DesignSettings {
   fontFamily: FontFamily;
-  baseFontSize: number;      // pt, range: 9–12
+  baseFontSize: number;      // pt, range: 9–12 (body text base)
+  nameFontSize: number;      // pt, range: 16–32
+  sectionHeaderFontSize: number; // pt, range: 8–14
+  subheaderFontSize: number; // pt, range: 8–13 (job title, institution)
   lineHeight: number;        // e.g. 1.35, range: 1.1–1.8
   listLineHeight: number;    // separate control for bullet spacing
   accentColor: string;       // hex string
@@ -104,6 +107,9 @@ export interface DesignSettings {
 export const defaultDesign: DesignSettings = {
   fontFamily: 'Georgia',
   baseFontSize: 10,
+  nameFontSize: 22,
+  sectionHeaderFontSize: 10,
+  subheaderFontSize: 10,
   lineHeight: 1.35,
   listLineHeight: 1.3,
   accentColor: '#1a1a1a',

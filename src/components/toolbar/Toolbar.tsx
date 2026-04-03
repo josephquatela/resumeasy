@@ -58,13 +58,13 @@ export function Toolbar({ isDesignerOpen, onToggleDesigner }: ToolbarProps) {
               onChange={(e) => setNameValue(e.target.value)}
               onBlur={commitRename}
               onKeyDown={handleKeyDown}
-              className="bg-zinc-800 border border-zinc-600 rounded px-2 py-0.5 text-sm text-white text-center focus:outline-none focus:border-zinc-400 max-w-xs w-full"
+              className="bg-zinc-800 border border-zinc-600 rounded-lg px-4 py-1.5 text-sm font-medium text-white text-center focus:outline-none focus:border-zinc-400 w-64"
             />
           ) : (
             <button
               onClick={startEditing}
-              className="text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 rounded px-2 py-0.5 transition-colors max-w-xs truncate"
               title="Click to rename"
+              className="bg-zinc-800 border border-zinc-700 hover:border-zinc-500 rounded-lg px-4 py-1.5 text-sm font-medium text-zinc-200 hover:text-white text-center transition-colors w-64 truncate"
             >
               {resume.name}
             </button>

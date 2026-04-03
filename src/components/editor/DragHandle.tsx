@@ -4,10 +4,10 @@ export function DragHandle({ dragHandleProps }: { dragHandleProps?: Record<strin
   return (
     <button
       {...(dragHandleProps as React.ButtonHTMLAttributes<HTMLButtonElement>)}
-      className="opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing p-1 rounded text-zinc-500 hover:text-zinc-300 transition-opacity"
+      className="opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing p-1.5 rounded text-zinc-600 hover:text-zinc-400 transition-all duration-150"
       aria-label="Drag to reorder"
     >
-      <GripVertical size={14} />
+      <GripVertical size={15} />
     </button>
   );
 }

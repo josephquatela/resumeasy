@@ -5,8 +5,8 @@ import { ColorSwatch } from './controls/ColorSwatch';
 const PRESET_COLORS = [
   { hex: '#1a1a1a', label: 'Black' },
   { hex: '#374151', label: 'Charcoal' },
-  { hex: '#059669', label: 'Emerald' },
   { hex: '#1e3a8a', label: 'Navy' },
+  { hex: '#059669', label: 'Emerald' },
   { hex: '#881337', label: 'Burgundy' },
   { hex: '#c2410c', label: 'Rust' },
   { hex: '#475569', label: 'Slate' },
@@ -39,16 +39,17 @@ export function ColorsTab() {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-8">
       <div>
-        <label className="text-xs text-zinc-500 uppercase tracking-wider mb-3 block">
-          Preset Colors
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {PRESET_COLORS.map(({ hex }) => (
+        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-5">
+          Accent Color
+        </p>
+        <div className="grid grid-cols-4 gap-4">
+          {PRESET_COLORS.map(({ hex, label }) => (
             <ColorSwatch
               key={hex}
               color={hex}
+              label={label}
               isActive={accentColor.toLowerCase() === hex.toLowerCase()}
               onClick={() => handleSwatchClick(hex)}
             />
@@ -56,27 +57,37 @@ export function ColorsTab() {
         </div>
       </div>
 
+      <div className="h-px bg-zinc-800" />
+
       <div>
-        <label className="text-xs text-zinc-500 uppercase tracking-wider mb-2 block">
+        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-4">
           Custom Color
-        </label>
+        </p>
         <div className="flex items-center gap-3">
-          <input
-            type="color"
-            value={accentColor}
-            onChange={handleColorPicker}
-            className="w-9 h-9 rounded cursor-pointer bg-transparent border border-zinc-700 p-0.5"
-          />
-          <input
-            type="text"
-            value={hexInput}
-            onChange={(e) => setHexInput(e.target.value)}
-            onBlur={handleHexCommit}
-            onKeyDown={(e) => e.key === 'Enter' && handleHexCommit()}
-            placeholder="#1a1a1a"
-            className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1.5 text-sm text-zinc-100 font-mono focus:outline-none focus:border-zinc-500"
-          />
+          <div className="relative">
+            <input
+              type="color"
+              value={accentColor}
+              onChange={handleColorPicker}
+              className="w-12 h-12 rounded-lg cursor-pointer bg-transparent border-2 border-zinc-700 p-1 hover:border-zinc-500 transition-colors"
+            />
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              value={hexInput}
+              onChange={(e) => setHexInput(e.target.value)}
+              onBlur={handleHexCommit}
+              onKeyDown={(e) => e.key === 'Enter' && handleHexCommit()}
+              placeholder="#1a1a1a"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-3 text-sm text-zinc-100 font-mono focus:outline-none focus:border-zinc-500 transition-colors"
+            />
+          </div>
         </div>
+        <div
+          className="mt-4 h-10 rounded-lg border border-zinc-700"
+          style={{ backgroundColor: accentColor }}
+        />
       </div>
     </div>
   );

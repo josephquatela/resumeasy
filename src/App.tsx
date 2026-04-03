@@ -11,6 +11,7 @@ import { DesignerPanel } from './components/designer/DesignerPanel';
 
 function AppShell() {
   const [isDesignerOpen, setIsDesignerOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   useSupabaseSync();
 
   return (
@@ -19,10 +20,8 @@ function AppShell() {
         isDesignerOpen={isDesignerOpen}
         onToggleDesigner={() => setIsDesignerOpen((o) => !o)}
       />
-      <div className="flex flex-col md:flex-row h-[calc(100vh-56px)] overflow-hidden" style={{ marginTop: '56px' }}>
-        <div className="w-64 shrink-0 h-full overflow-y-auto">
-          <ResumeList />
-        </div>
+      <div className="flex h-[calc(100vh-56px)] overflow-hidden" style={{ marginTop: '56px' }}>
+        <ResumeList isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen((o) => !o)} />
         <div className="flex flex-1 overflow-hidden">
           <div className="w-[45%] min-w-0 overflow-y-auto">
             <EditorPanel />

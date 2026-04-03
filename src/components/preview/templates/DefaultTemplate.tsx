@@ -6,26 +6,19 @@ interface TemplateProps {
   design: DesignSettings;
 }
 
-interface SectionHeaderProps {
-  label: string;
-  accentColor: string;
-  baseFontSize: number;
-  sectionSpacing: number;
-}
-
-function SectionHeader({ label, accentColor, baseFontSize, sectionSpacing }: SectionHeaderProps) {
+function SectionHeader({ label, design }: { label: string; design: DesignSettings }) {
   return (
     <div
       style={{
-        borderBottom: `1px solid ${accentColor}`,
+        borderBottom: `1px solid ${design.accentColor}`,
         paddingBottom: 3,
         marginBottom: 8,
-        marginTop: sectionSpacing,
-        fontSize: `${baseFontSize * 1.05}pt`,
+        marginTop: design.sectionSpacing,
+        fontSize: `${design.sectionHeaderFontSize}pt`,
         fontWeight: 700,
         letterSpacing: '0.06em',
         textTransform: 'uppercase' as const,
-        color: accentColor,
+        color: design.accentColor,
       }}
     >
       {label}
@@ -33,21 +26,10 @@ function SectionHeader({ label, accentColor, baseFontSize, sectionSpacing }: Sec
   );
 }
 
-interface ExperienceSectionProps {
-  label: string;
-  items: WorkExperience[];
-  design: DesignSettings;
-}
-
-function ExperienceSection({ label, items, design }: ExperienceSectionProps) {
+function ExperienceSection({ label, items, design }: { label: string; items: WorkExperience[]; design: DesignSettings }) {
   return (
     <div>
-      <SectionHeader
-        label={label}
-        accentColor={design.accentColor}
-        baseFontSize={design.baseFontSize}
-        sectionSpacing={design.sectionSpacing}
-      />
+      <SectionHeader label={label} design={design} />
       {items.map((exp) => (
         <div key={exp.id} style={{ marginBottom: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -56,7 +38,7 @@ function ExperienceSection({ label, items, design }: ExperienceSectionProps) {
               {exp.startDate} – {exp.endDate ?? 'Present'}
             </span>
           </div>
-          <div style={{ fontSize: `${design.baseFontSize * 0.95}pt`, color: '#444', marginBottom: 3 }}>
+          <div style={{ fontSize: `${design.subheaderFontSize}pt`, color: '#444', marginBottom: 3 }}>
             {exp.title}{exp.employmentType ? ` · ${exp.employmentType}` : ''}
             {exp.location ? ` · ${exp.location}` : ''}
           </div>
@@ -66,7 +48,7 @@ function ExperienceSection({ label, items, design }: ExperienceSectionProps) {
                 <li
                   key={b.id}
                   style={{
-                    fontSize: `${design.baseFontSize * 0.95}pt`,
+                    fontSize: `${design.baseFontSize}pt`,
                     color: '#333',
                     lineHeight: design.listLineHeight,
                     marginBottom: 1,
@@ -83,21 +65,10 @@ function ExperienceSection({ label, items, design }: ExperienceSectionProps) {
   );
 }
 
-interface EducationSectionProps {
-  label: string;
-  items: Education[];
-  design: DesignSettings;
-}
-
-function EducationSection({ label, items, design }: EducationSectionProps) {
+function EducationSection({ label, items, design }: { label: string; items: Education[]; design: DesignSettings }) {
   return (
     <div>
-      <SectionHeader
-        label={label}
-        accentColor={design.accentColor}
-        baseFontSize={design.baseFontSize}
-        sectionSpacing={design.sectionSpacing}
-      />
+      <SectionHeader label={label} design={design} />
       {items.map((edu) => (
         <div key={edu.id} style={{ marginBottom: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -106,7 +77,7 @@ function EducationSection({ label, items, design }: EducationSectionProps) {
               {edu.startDate} – {edu.endDate}
             </span>
           </div>
-          <div style={{ fontSize: `${design.baseFontSize * 0.95}pt`, color: '#444' }}>
+          <div style={{ fontSize: `${design.subheaderFontSize}pt`, color: '#444' }}>
             {edu.degree} in {edu.field}{edu.gpa ? ` · GPA: ${edu.gpa}` : ''}
           </div>
         </div>
@@ -115,23 +86,12 @@ function EducationSection({ label, items, design }: EducationSectionProps) {
   );
 }
 
-interface SkillsSectionProps {
-  label: string;
-  items: SkillGroup[];
-  design: DesignSettings;
-}
-
-function SkillsSection({ label, items, design }: SkillsSectionProps) {
+function SkillsSection({ label, items, design }: { label: string; items: SkillGroup[]; design: DesignSettings }) {
   return (
     <div>
-      <SectionHeader
-        label={label}
-        accentColor={design.accentColor}
-        baseFontSize={design.baseFontSize}
-        sectionSpacing={design.sectionSpacing}
-      />
+      <SectionHeader label={label} design={design} />
       {items.map((sg) => (
-        <div key={sg.id} style={{ fontSize: `${design.baseFontSize * 0.95}pt`, marginBottom: 3 }}>
+        <div key={sg.id} style={{ fontSize: `${design.baseFontSize}pt`, marginBottom: 3 }}>
           <strong>{sg.category}: </strong>
           <span style={{ color: '#333' }}>{sg.skills.join(', ')}</span>
         </div>
@@ -140,21 +100,10 @@ function SkillsSection({ label, items, design }: SkillsSectionProps) {
   );
 }
 
-interface ProjectsSectionProps {
-  label: string;
-  items: Project[];
-  design: DesignSettings;
-}
-
-function ProjectsSection({ label, items, design }: ProjectsSectionProps) {
+function ProjectsSection({ label, items, design }: { label: string; items: Project[]; design: DesignSettings }) {
   return (
     <div>
-      <SectionHeader
-        label={label}
-        accentColor={design.accentColor}
-        baseFontSize={design.baseFontSize}
-        sectionSpacing={design.sectionSpacing}
-      />
+      <SectionHeader label={label} design={design} />
       {items.map((p) => (
         <div key={p.id} style={{ marginBottom: 10 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -166,7 +115,7 @@ function ProjectsSection({ label, items, design }: ProjectsSectionProps) {
             )}
           </div>
           {p.description && (
-            <div style={{ fontSize: `${design.baseFontSize * 0.95}pt`, color: '#444', marginBottom: 3 }}>
+            <div style={{ fontSize: `${design.subheaderFontSize}pt`, color: '#444', marginBottom: 3 }}>
               {p.description}
             </div>
           )}
@@ -176,7 +125,7 @@ function ProjectsSection({ label, items, design }: ProjectsSectionProps) {
                 <li
                   key={b.id}
                   style={{
-                    fontSize: `${design.baseFontSize * 0.95}pt`,
+                    fontSize: `${design.baseFontSize}pt`,
                     color: '#333',
                     lineHeight: design.listLineHeight,
                     marginBottom: 1,
@@ -196,6 +145,9 @@ function ProjectsSection({ label, items, design }: ProjectsSectionProps) {
 export function DefaultTemplate({ data, design }: TemplateProps) {
   const { contact, summary, sections, experience, education, skills, projects } = data;
 
+  const showContact = sections.some((s) => s.type === 'contact');
+  const showSummary = sections.some((s) => s.type === 'summary');
+
   return (
     <div
       style={{
@@ -206,72 +158,43 @@ export function DefaultTemplate({ data, design }: TemplateProps) {
         color: '#1a1a1a',
       } as React.CSSProperties}
     >
-      {/* Header */}
-      <div style={{ marginBottom: design.sectionSpacing }}>
-        <h1
-          style={{
-            fontSize: `${design.baseFontSize * 2.2}pt`,
-            fontWeight: 'bold',
-            margin: 0,
-            lineHeight: 1.2,
-          }}
-        >
-          {contact.name}
-        </h1>
-        <div style={{ fontSize: `${design.baseFontSize * 0.9}pt`, color: '#555', marginTop: 4 }}>
-          {[contact.email, contact.phone, contact.location, contact.linkedin, contact.github, contact.website]
-            .filter(Boolean)
-            .join(' · ')}
+      {showContact && (
+        <div style={{ marginBottom: design.sectionSpacing }}>
+          <h1
+            style={{
+              fontSize: `${design.nameFontSize}pt`,
+              fontWeight: 'bold',
+              margin: 0,
+              lineHeight: 1.2,
+            }}
+          >
+            {contact.name}
+          </h1>
+          <div style={{ fontSize: `${design.baseFontSize * 0.9}pt`, color: '#555', marginTop: 4 }}>
+            {[contact.email, contact.phone, contact.location, contact.linkedin, contact.github, contact.website]
+              .filter(Boolean)
+              .join(' · ')}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Summary */}
-      {summary && (
-        <div style={{ marginBottom: design.sectionSpacing, fontStyle: 'italic', color: '#444' }}>
+      {showSummary && summary && (
+        <div style={{ fontSize: `${design.baseFontSize}pt`, marginBottom: design.sectionSpacing, fontStyle: 'italic', color: '#444' }}>
           {summary}
         </div>
       )}
 
-      {/* Sections in order */}
       {sections.map((section) => {
         if (section.type === 'contact' || section.type === 'summary') return null;
         switch (section.type) {
           case 'experience':
-            return (
-              <ExperienceSection
-                key={section.id}
-                label={section.label}
-                items={experience}
-                design={design}
-              />
-            );
+            return <ExperienceSection key={section.id} label={section.label} items={experience} design={design} />;
           case 'education':
-            return (
-              <EducationSection
-                key={section.id}
-                label={section.label}
-                items={education}
-                design={design}
-              />
-            );
+            return <EducationSection key={section.id} label={section.label} items={education} design={design} />;
           case 'skills':
-            return (
-              <SkillsSection
-                key={section.id}
-                label={section.label}
-                items={skills}
-                design={design}
-              />
-            );
+            return <SkillsSection key={section.id} label={section.label} items={skills} design={design} />;
           case 'projects':
-            return (
-              <ProjectsSection
-                key={section.id}
-                label={section.label}
-                items={projects}
-                design={design}
-              />
-            );
+            return <ProjectsSection key={section.id} label={section.label} items={projects} design={design} />;
           default:
             return null;
         }

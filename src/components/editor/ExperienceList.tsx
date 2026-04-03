@@ -31,7 +31,7 @@ export function ExperienceList({ experience }: ExperienceListProps) {
       </DndContext>
       <button
         onClick={() => console.log('Add Experience — stub for v1')}
-        className="mt-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        className="mt-2 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
       >
         + Add Experience
       </button>

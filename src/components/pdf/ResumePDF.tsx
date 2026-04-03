@@ -43,17 +43,19 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
     return (
       <View key="experience">
         <View style={styles.sectionHeader}>
-          <Text>{label.toUpperCase()}</Text>
+          <Text style={styles.sectionHeaderText}>{label.toUpperCase()}</Text>
         </View>
         {experience.map((exp) => (
           <View key={exp.id} style={{ marginBottom: 8 }}>
             <View style={styles.experienceRow}>
-              <Text style={styles.company}>{exp.company}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.company}>{exp.company}</Text>
+              </View>
               <Text style={styles.dates}>
                 {exp.startDate} – {exp.endDate ?? 'Present'}
               </Text>
             </View>
-            <Text style={{ fontSize: design.baseFontSize * 0.95, marginBottom: 2, color: '#444' }}>
+            <Text style={{ fontSize: design.subheaderFontSize, marginBottom: 2, color: '#444' }}>
               {exp.title}{exp.employmentType ? ` · ${exp.employmentType}` : ''}
               {exp.location ? ` · ${exp.location}` : ''}
             </Text>
@@ -73,17 +75,19 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
     return (
       <View key="education">
         <View style={styles.sectionHeader}>
-          <Text>{label.toUpperCase()}</Text>
+          <Text style={styles.sectionHeaderText}>{label.toUpperCase()}</Text>
         </View>
         {education.map((edu) => (
           <View key={edu.id} style={{ marginBottom: 6 }}>
             <View style={styles.experienceRow}>
-              <Text style={styles.company}>{edu.institution}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.company}>{edu.institution}</Text>
+              </View>
               <Text style={styles.dates}>
                 {edu.startDate} – {edu.endDate}
               </Text>
             </View>
-            <Text style={{ fontSize: design.baseFontSize * 0.95, color: '#444' }}>
+            <Text style={{ fontSize: design.subheaderFontSize, color: '#444' }}>
               {edu.degree} in {edu.field}{edu.gpa ? ` · GPA: ${edu.gpa}` : ''}
             </Text>
           </View>
@@ -96,10 +100,10 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
     return (
       <View key="skills">
         <View style={styles.sectionHeader}>
-          <Text>{label.toUpperCase()}</Text>
+          <Text style={styles.sectionHeaderText}>{label.toUpperCase()}</Text>
         </View>
         {skills.map((sg) => (
-          <Text key={sg.id} style={{ marginBottom: 3, fontSize: design.baseFontSize * 0.95 }}>
+          <Text key={sg.id} style={{ marginBottom: 3, fontSize: design.subheaderFontSize }}>
             <Text style={{ fontWeight: 'bold' }}>{sg.category}: </Text>
             {sg.skills.join(', ')}
           </Text>
@@ -112,13 +116,18 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
     return (
       <View key="projects">
         <View style={styles.sectionHeader}>
-          <Text>{label.toUpperCase()}</Text>
+          <Text style={styles.sectionHeaderText}>{label.toUpperCase()}</Text>
         </View>
         {projects.map((p) => (
           <View key={p.id} style={{ marginBottom: 6 }}>
-            <Text style={styles.company}>{p.name}</Text>
+            <View style={styles.experienceRow}>
+              <Text style={styles.company}>{p.name}</Text>
+              {p.link ? (
+                <Text style={styles.dates}>{p.link}</Text>
+              ) : null}
+            </View>
             {p.description ? (
-              <Text style={{ fontSize: design.baseFontSize * 0.95, marginBottom: 2, color: '#444' }}>
+              <Text style={{ fontSize: design.subheaderFontSize, marginBottom: 2, color: '#444' }}>
                 {p.description}
               </Text>
             ) : null}
@@ -196,24 +205,27 @@ function createStyles(design: DesignSettings) {
       color: '#1a1a1a',
       lineHeight: design.lineHeight,
     },
-    header: { marginBottom: 10 },
+    header: { marginBottom: design.sectionSpacing },
     name: {
-      fontSize: design.baseFontSize * 2.2,
+      fontSize: design.nameFontSize,
       fontWeight: 'bold',
-      marginBottom: 2,
+      lineHeight: 1.2,
+      marginBottom: 4,
     },
     contactLine: {
       fontSize: design.baseFontSize * 0.9,
       color: '#555',
     },
     sectionHeader: {
-      fontSize: design.baseFontSize * 1.1,
-      fontWeight: 'bold',
       borderBottomWidth: 1,
       borderBottomColor: design.accentColor,
       paddingBottom: 2,
       marginTop: design.sectionSpacing,
       marginBottom: 6,
+    },
+    sectionHeaderText: {
+      fontSize: design.sectionHeaderFontSize,
+      fontWeight: 'bold',
       color: design.accentColor,
     },
     experienceRow: {
@@ -222,17 +234,17 @@ function createStyles(design: DesignSettings) {
       marginBottom: 1,
     },
     company: { fontWeight: 'bold' },
-    dates: { color: '#555', fontSize: design.baseFontSize * 0.9 },
+    dates: { color: '#555', fontSize: design.baseFontSize * 0.9, flexShrink: 0 },
     bulletRow: {
       flexDirection: 'row',
       marginTop: 2,
       paddingLeft: 8,
     },
-    bulletDot: { width: 10, marginTop: 1 },
+    bulletDot: { width: 10, fontSize: design.subheaderFontSize, lineHeight: design.listLineHeight },
     bulletText: {
       flex: 1,
       lineHeight: design.listLineHeight,
-      fontSize: design.baseFontSize * 0.95,
+      fontSize: design.subheaderFontSize,
     },
   });
 }

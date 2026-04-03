@@ -14,26 +14,35 @@ export function ExperienceBlock({ exp, dragHandleProps }: ExperienceBlockProps) 
   const addBullet = useResumeStore((s) => s.addBullet);
 
   return (
-    <div className="group mb-2 rounded border border-zinc-700 bg-zinc-800/50">
-      <div className="flex items-center gap-2 p-2">
+    <div className="group mb-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50">
+      <div className="flex items-start gap-2 p-4">
         <DragHandle dragHandleProps={dragHandleProps} />
         <Checkbox checked={exp.visible} onChange={() => toggleExperience(exp.id)} />
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-zinc-100 truncate">{exp.company}</div>
-          <div className="text-xs text-zinc-400 truncate">
-            {exp.title}
-            {exp.employmentType ? ` • ${exp.employmentType}` : ''}
-          </div>
-          <div className="text-xs text-zinc-500">
-            {exp.startDate} – {exp.endDate ?? 'Present'}
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="text-base font-semibold text-zinc-100 truncate">{exp.company}</div>
+              <div className="text-sm text-zinc-300 truncate mt-0.5">
+                {exp.title}
+                {exp.employmentType ? (
+                  <span className="text-zinc-500"> &middot; {exp.employmentType}</span>
+                ) : null}
+              </div>
+              {exp.location && (
+                <div className="text-xs text-zinc-500 mt-0.5">{exp.location}</div>
+              )}
+            </div>
+            <span className="shrink-0 bg-zinc-800 text-zinc-400 text-xs px-2 py-0.5 rounded-full whitespace-nowrap border border-zinc-700/60">
+              {exp.startDate} – {exp.endDate ?? 'Present'}
+            </span>
           </div>
         </div>
       </div>
-      <div className="px-3 pb-2">
+      <div className="px-4 pb-4">
         <BulletList expId={exp.id} bullets={exp.bullets} />
         <button
           onClick={() => addBullet(exp.id, '')}
-          className="mt-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="mt-2 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
         >
           + Add Bullet
         </button>

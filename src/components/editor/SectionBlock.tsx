@@ -19,12 +19,14 @@ function ContactForm() {
   if (!contact) return null;
 
   const inputClass =
-    'w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500';
+    'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors duration-150';
+
+  const labelClass = 'text-xs text-zinc-400 mb-1.5 block font-medium';
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-3">
       <div className="col-span-2">
-        <label className="text-xs text-zinc-500 mb-1 block">Full Name</label>
+        <label className={labelClass}>Full Name</label>
         <input
           className={inputClass}
           value={contact.name}
@@ -33,7 +35,7 @@ function ContactForm() {
         />
       </div>
       <div>
-        <label className="text-xs text-zinc-500 mb-1 block">Email</label>
+        <label className={labelClass}>Email</label>
         <input
           className={inputClass}
           type="email"
@@ -43,7 +45,7 @@ function ContactForm() {
         />
       </div>
       <div>
-        <label className="text-xs text-zinc-500 mb-1 block">Phone</label>
+        <label className={labelClass}>Phone</label>
         <input
           className={inputClass}
           value={contact.phone ?? ''}
@@ -52,7 +54,7 @@ function ContactForm() {
         />
       </div>
       <div>
-        <label className="text-xs text-zinc-500 mb-1 block">Location</label>
+        <label className={labelClass}>Location</label>
         <input
           className={inputClass}
           value={contact.location ?? ''}
@@ -61,7 +63,7 @@ function ContactForm() {
         />
       </div>
       <div>
-        <label className="text-xs text-zinc-500 mb-1 block">LinkedIn</label>
+        <label className={labelClass}>LinkedIn</label>
         <input
           className={inputClass}
           value={contact.linkedin ?? ''}
@@ -70,7 +72,7 @@ function ContactForm() {
         />
       </div>
       <div>
-        <label className="text-xs text-zinc-500 mb-1 block">GitHub</label>
+        <label className={labelClass}>GitHub</label>
         <input
           className={inputClass}
           value={contact.github ?? ''}
@@ -79,7 +81,7 @@ function ContactForm() {
         />
       </div>
       <div>
-        <label className="text-xs text-zinc-500 mb-1 block">Website</label>
+        <label className={labelClass}>Website</label>
         <input
           className={inputClass}
           value={contact.website ?? ''}
@@ -100,36 +102,36 @@ function SummaryEditor() {
     <textarea
       defaultValue={summary}
       onBlur={(e) => updateSummary(e.target.value)}
-      rows={4}
+      rows={5}
       placeholder="Write a brief professional summary..."
-      className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 resize-none"
+      className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors duration-150 resize-none"
     />
   );
 }
 
 // ---- EducationList ----
 function EducationList() {
-  const education = useResumeStore((s) => s.resume?.education ?? []);
+  const resume = useResumeStore((s) => s.resume);
   const toggleEducation = useResumeStore((s) => s.toggleEducation);
 
-  const sorted = [...education].sort((a, b) => a.order - b.order);
+  const sorted = [...(resume?.education ?? [])].sort((a, b) => a.order - b.order);
 
   return (
-    <div>
+    <div className="space-y-2">
       {sorted.map((edu) => (
         <div
           key={edu.id}
-          className="group mb-2 rounded border border-zinc-700 bg-zinc-800/50 p-2"
+          className="group rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3"
         >
           <div className="flex items-start gap-2">
             <Checkbox checked={edu.visible} onChange={() => toggleEducation(edu.id)} />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-zinc-100 truncate">{edu.institution}</div>
-              <div className="text-xs text-zinc-400">
+              <div className="text-xs text-zinc-400 mt-0.5">
                 {edu.degree} in {edu.field}
-                {edu.gpa ? ` • GPA: ${edu.gpa}` : ''}
+                {edu.gpa ? <span className="text-zinc-500"> &middot; GPA: {edu.gpa}</span> : ''}
               </div>
-              <div className="text-xs text-zinc-500">
+              <div className="text-xs text-zinc-500 mt-0.5">
                 {edu.startDate} – {edu.endDate}
               </div>
             </div>
@@ -138,7 +140,7 @@ function EducationList() {
       ))}
       <button
         onClick={() => console.log('Add Education — stub for v1')}
-        className="mt-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
       >
         + Add Education
       </button>
@@ -148,30 +150,39 @@ function EducationList() {
 
 // ---- SkillsList ----
 function SkillsList() {
-  const skills = useResumeStore((s) => s.resume?.skills ?? []);
+  const resume = useResumeStore((s) => s.resume);
   const toggleSkillGroup = useResumeStore((s) => s.toggleSkillGroup);
 
-  const sorted = [...skills].sort((a, b) => a.order - b.order);
+  const sorted = [...(resume?.skills ?? [])].sort((a, b) => a.order - b.order);
 
   return (
-    <div>
+    <div className="space-y-2">
       {sorted.map((group) => (
         <div
           key={group.id}
-          className="group mb-2 rounded border border-zinc-700 bg-zinc-800/50 p-2"
+          className="group rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3"
         >
           <div className="flex items-start gap-2">
             <Checkbox checked={group.visible} onChange={() => toggleSkillGroup(group.id)} />
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-zinc-100">{group.category}</div>
-              <div className="text-xs text-zinc-400 truncate">{group.skills.join(', ')}</div>
+              <div className="text-sm font-semibold text-zinc-100 mb-2">{group.category}</div>
+              <div className="flex flex-wrap gap-1.5">
+                {group.skills.map((skill, i) => (
+                  <span
+                    key={i}
+                    className="inline-block bg-zinc-700/60 border border-zinc-600/50 text-zinc-300 text-xs px-2 py-0.5 rounded-full"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       ))}
       <button
         onClick={() => console.log('Add Skill Group — stub for v1')}
-        className="mt-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
       >
         + Add Skill Group
       </button>
@@ -181,28 +192,32 @@ function SkillsList() {
 
 // ---- ProjectsList ----
 function ProjectsList() {
-  const projects = useResumeStore((s) => s.resume?.projects ?? []);
+  const resume = useResumeStore((s) => s.resume);
   const toggleProject = useResumeStore((s) => s.toggleProject);
 
-  const sorted = [...projects].sort((a, b) => a.order - b.order);
+  const sorted = [...(resume?.projects ?? [])].sort((a, b) => a.order - b.order);
 
   return (
-    <div>
+    <div className="space-y-2">
       {sorted.map((project) => (
         <div
           key={project.id}
-          className="group mb-2 rounded border border-zinc-700 bg-zinc-800/50 p-2"
+          className="group rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3"
         >
           <div className="flex items-start gap-2">
             <Checkbox checked={project.visible} onChange={() => toggleProject(project.id)} />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-zinc-100">{project.name}</div>
               {project.link && (
-                <div className="text-xs text-blue-400 truncate">{project.link}</div>
+                <div className="text-xs text-blue-400 truncate mt-0.5">{project.link}</div>
               )}
-              <div className="text-xs text-zinc-400 line-clamp-2">{project.description}</div>
+              {project.description && (
+                <div className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
+                  {project.description}
+                </div>
+              )}
               {project.bullets.length > 0 && (
-                <div className="text-xs text-zinc-500 mt-0.5">
+                <div className="text-xs text-zinc-600 mt-1">
                   {project.bullets.length} bullet{project.bullets.length !== 1 ? 's' : ''}
                 </div>
               )}
@@ -212,7 +227,7 @@ function ProjectsList() {
       ))}
       <button
         onClick={() => console.log('Add Project — stub for v1')}
-        className="mt-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
       >
         + Add Project
       </button>
@@ -248,29 +263,34 @@ export function SectionBlock({ section, dragHandleProps }: SectionBlockProps) {
   }
 
   return (
-    <div className="group mb-3 rounded-lg border border-zinc-800 bg-zinc-900">
-      <div className="flex items-center gap-2 p-3">
+    <div
+      className={`group mb-3 rounded-lg border border-zinc-700/50 bg-zinc-900/80 transition-opacity duration-150 ${
+        !section.visible ? 'opacity-50' : ''
+      }`}
+    >
+      <div className="flex items-center gap-2 p-4">
         <DragHandle dragHandleProps={dragHandleProps} />
         <Checkbox
           checked={section.visible}
           onChange={() => toggleSection(section.id)}
         />
-        <span
-          className={`flex-1 text-sm font-medium ${
-            !section.visible ? 'line-through opacity-40' : 'text-zinc-100'
-          }`}
-        >
+        <span className="flex-1 text-base font-medium text-zinc-100">
           {section.label}
         </span>
         <button
           onClick={() => setExpanded((e) => !e)}
-          className="text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors duration-150"
           aria-label={expanded ? 'Collapse section' : 'Expand section'}
         >
           {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
       </div>
-      {expanded && <div className="px-3 pb-3">{renderContent()}</div>}
+      {expanded && (
+        <>
+          <div className="h-px bg-zinc-700/40 mx-4" />
+          <div className="px-4 pb-4 pt-4">{renderContent()}</div>
+        </>
+      )}
     </div>
   );
 }

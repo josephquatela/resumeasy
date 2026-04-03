@@ -4,10 +4,10 @@ import { useResumeStore } from '../../store/resumeStore';
 import { SortableSectionBlock } from './SortableSectionBlock';
 
 export function SectionList() {
-  const sections = useResumeStore((s) => s.resume?.sections ?? []);
+  const resume = useResumeStore((s) => s.resume);
   const reorderSections = useResumeStore((s) => s.reorderSections);
 
-  const sorted = [...sections].sort((a, b) => a.order - b.order);
+  const sorted = [...(resume?.sections ?? [])].sort((a, b) => a.order - b.order);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;

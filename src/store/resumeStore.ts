@@ -226,7 +226,6 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
 
       const design = useDesignStore.getState().design;
       const now = new Date().toISOString();
-      const updatedResume = { ...resume, updatedAt: now };
 
       // Find the DB row that owns this resume data
       const row = allResumes.find((r) => r.data.id === resume.id);
@@ -234,15 +233,14 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
       if (row) {
         const { error } = await supabase
           .from('resumes')
-          .update({ data: updatedResume, design, updated_at: now })
+          .update({ data: resume, design, updated_at: now })
           .eq('id', row.id);
         if (error) throw error;
 
         set((s) => ({
           allResumes: s.allResumes.map((r) =>
-            r.id === row.id ? { ...r, data: updatedResume, design, updated_at: now } : r
+            r.id === row.id ? { ...r, data: resume, design, updated_at: now } : r
           ),
-          resume: updatedResume,
         }));
       }
     } catch (err) {
