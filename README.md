@@ -142,28 +142,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 See [`/specs`](./specs/) for detailed implementation specs per feature.
 
----
-
-## Roadmap
-
-### v1 — Core Builder (24hr sprint)
-- [ ] Supabase project setup + schema migration
-- [ ] Auth flow (magic link login, session management)
-- [ ] Data model + Zustand store with Supabase sync
-- [ ] Multiple resume snapshots (create, rename, delete)
-- [ ] Checkable bullet items
-- [ ] Drag-and-drop reorder (sections + bullets)
-- [ ] Live preview panel
-- [ ] Template designer (font, accent color, spacing)
-- [ ] PDF export
-
-### v2 — Polish
-- [ ] JSON import/export for portability
-- [ ] More templates (two-column, minimal, etc.)
-- [ ] Keyboard navigation for accessibility
-- [ ] Optimistic UI updates with Supabase Realtime
-
----
+--
 
 ## License
 
