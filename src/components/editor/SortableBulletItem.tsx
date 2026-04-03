@@ -1,0 +1,29 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { BulletPoint } from '../../types/resume';
+import { BulletItem } from './BulletItem';
+
+interface SortableBulletItemProps {
+  expId: string;
+  bullet: BulletPoint;
+}
+
+export function SortableBulletItem({ expId, bullet }: SortableBulletItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: bullet.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const dragHandleProps = { ...attributes, ...listeners };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <BulletItem expId={expId} bullet={bullet} dragHandleProps={dragHandleProps} />
+    </div>
+  );
+}

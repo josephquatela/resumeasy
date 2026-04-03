@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(timeout 10 npx vite build)",
+      "Bash(npx vite:*)",
+      "Bash(node -e ':*)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const ts = require\\('/Users/joeyquatela/Documents/resume-builder-app/node_modules/typescript'\\); console.log\\(ts.version\\)\")",
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(node_modules/.bin/tsc --noEmit --pretty)",
+      "Bash(echo \"Exit: $?\")"
+    ]
+  }
+}
