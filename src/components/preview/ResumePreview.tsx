@@ -1,33 +1,59 @@
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { BlobProvider } from '@react-pdf/renderer';
 import { useResumeStore } from '../../store/resumeStore';
 import { useDesignStore } from '../../store/designStore';
 import { useFilteredResume } from '../../hooks/useFilteredResume';
-import { DefaultTemplate } from './templates/DefaultTemplate';
+import { ResumePDF } from '../pdf/ResumePDF';
+import { FilteredResumeData, DesignSettings } from '../../types/resume';
 
-function usePreviewScale(containerRef: React.RefObject<HTMLDivElement>) {
-  const [scale, setScale] = useState(1);
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
   useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver(([entry]) => {
-      const containerWidth = entry.contentRect.width;
-      const paperWidthPx = 8.5 * 96;
-      const padding = 64;
-      setScale(Math.min(1, (containerWidth - padding) / paperWidthPx));
-    });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-  return scale;
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
+function PdfPreview({ data, design }: { data: FilteredResumeData; design: DesignSettings }) {
+  return (
+    <BlobProvider document={<ResumePDF data={data} design={design} />}>
+      {({ url, loading, error }) => {
+        if (error) {
+          return (
+            <div className="flex items-center justify-center h-full bg-zinc-900 text-red-400 text-sm px-6 text-center">
+              Failed to render preview: {error.message}
+            </div>
+          );
+        }
+        if (loading || !url) {
+          return (
+            <div className="flex items-center justify-center h-full bg-zinc-900 text-zinc-500 text-sm">
+              <div className="animate-spin border-t-2 border-zinc-500 rounded-full w-5 h-5" />
+            </div>
+          );
+        }
+        return (
+          <iframe
+            src={url}
+            title="Resume preview"
+            style={{ border: 'none', width: '100%', height: '100%', display: 'block' }}
+          />
+        );
+      }}
+    </BlobProvider>
+  );
 }
 
 export function ResumePreview() {
   const resume = useResumeStore((s) => s.resume);
   const design = useDesignStore((s) => s.design);
   const filteredData = useFilteredResume(resume);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const scale = usePreviewScale(containerRef);
 
-  if (!filteredData) {
+  const debouncedData = useDebounce<FilteredResumeData | null>(filteredData, 300);
+  const debouncedDesign = useDebounce(design, 300);
+
+  if (!debouncedData) {
     return (
       <div className="flex items-center justify-center h-full bg-zinc-900 text-zinc-400 text-sm">
         No resume loaded. Create or select a resume.
@@ -35,25 +61,6 @@ export function ResumePreview() {
     );
   }
 
-  return (
-    <div
-      ref={containerRef}
-      className="bg-zinc-900 overflow-y-auto flex justify-center py-8 h-full"
-    >
-      <div
-        id="resume-print-target"
-        className="bg-white shadow-2xl"
-        style={{
-          width: '8.5in',
-          minHeight: '11in',
-          padding: `${design.marginY}in ${design.marginX}in`,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top center',
-          '--accent': design.accentColor,
-        } as React.CSSProperties}
-      >
-        <DefaultTemplate data={filteredData} design={design} />
-      </div>
-    </div>
-  );
+  const previewKey = JSON.stringify({ data: debouncedData, design: debouncedDesign });
+  return <PdfPreview key={previewKey} data={debouncedData} design={debouncedDesign} />;
 }

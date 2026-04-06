@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from './store/authStore';
 import { useResumeStore } from './store/resumeStore';
 import { useSupabaseSync } from './hooks/useSupabaseSync';
+import { restoreCustomFonts } from './lib/customFonts';
 import { AuthGate } from './components/auth/AuthGate';
 import { Toolbar } from './components/toolbar/Toolbar';
 import { ResumeList } from './components/resumelist/ResumeList';
@@ -42,6 +43,7 @@ export default function App() {
 
   useEffect(() => {
     init();
+    restoreCustomFonts();
   }, []);
 
   useEffect(() => {

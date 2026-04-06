@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react';
 import { WorkExperience } from '../../types/resume';
 import { useResumeStore } from '../../store/resumeStore';
 import { DragHandle } from './DragHandle';
@@ -11,6 +12,7 @@ interface ExperienceBlockProps {
 
 export function ExperienceBlock({ exp, dragHandleProps }: ExperienceBlockProps) {
   const toggleExperience = useResumeStore((s) => s.toggleExperience);
+  const deleteExperience = useResumeStore((s) => s.deleteExperience);
   const addBullet = useResumeStore((s) => s.addBullet);
 
   return (
@@ -32,17 +34,29 @@ export function ExperienceBlock({ exp, dragHandleProps }: ExperienceBlockProps) 
                 <div className="text-xs text-zinc-500 mt-0.5">{exp.location}</div>
               )}
             </div>
-            <span className="shrink-0 bg-zinc-800 text-zinc-400 text-xs px-2 py-0.5 rounded-full whitespace-nowrap border border-zinc-700/60">
-              {exp.startDate} – {exp.endDate ?? 'Present'}
-            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="bg-zinc-800 text-zinc-400 text-xs px-2 py-0.5 rounded-full whitespace-nowrap border border-zinc-700/60">
+                {exp.startDate} – {exp.endDate ?? 'Present'}
+              </span>
+              <button
+                onClick={() => deleteExperience(exp.id)}
+                className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-opacity duration-150"
+                aria-label="Delete experience"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <div className="px-4 pb-4">
-        <BulletList expId={exp.id} bullets={exp.bullets} />
+      {exp.bullets.length > 0 && <div className="h-px bg-zinc-700/40 mx-4" />}
+      <div className="px-4 pb-4 pt-3">
+        <div className="border-l-2 border-zinc-700/60 pl-3 ml-8">
+          <BulletList expId={exp.id} bullets={exp.bullets} />
+        </div>
         <button
           onClick={() => addBullet(exp.id, '')}
-          className="mt-2 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
+          className="mt-2 ml-8 w-[calc(100%-2rem)] border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-1.5 text-xs transition-colors duration-150"
         >
           + Add Bullet
         </button>

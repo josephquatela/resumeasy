@@ -1,5 +1,3 @@
-import { Check } from 'lucide-react';
-
 interface CheckboxProps {
   checked: boolean;
   onChange: () => void;
@@ -8,14 +6,22 @@ interface CheckboxProps {
 export function Checkbox({ checked, onChange }: CheckboxProps) {
   return (
     <button
-      role="checkbox"
+      role="switch"
       aria-checked={checked}
       onClick={onChange}
-      className={`w-[18px] h-[18px] flex items-center justify-center rounded-[4px] border shrink-0 transition-colors duration-150 ${
-        checked ? 'bg-blue-600 border-blue-600' : 'border-zinc-600 bg-transparent hover:border-zinc-400'
+      className={`relative w-8 h-4 rounded-full shrink-0 transition-all duration-200 focus:outline-none ${
+        checked
+          ? 'bg-white/10 border border-white/40'
+          : 'bg-zinc-800 border border-zinc-600 hover:border-zinc-500'
       }`}
     >
-      {checked && <Check size={11} className="text-white" strokeWidth={3} />}
+      <span
+        className={`absolute top-0.5 w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+          checked
+            ? 'left-[17px] bg-white'
+            : 'left-0.5 bg-zinc-500'
+        }`}
+      />
     </button>
   );
 }

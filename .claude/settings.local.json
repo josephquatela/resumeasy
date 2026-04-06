@@ -9,7 +9,9 @@
       "Bash(node -e \"const ts = require\\('/Users/joeyquatela/Documents/resume-builder-app/node_modules/typescript'\\); console.log\\(ts.version\\)\")",
       "Bash(echo \"Exit code: $?\")",
       "Bash(node_modules/.bin/tsc --noEmit --pretty)",
-      "Bash(echo \"Exit: $?\")"
+      "Bash(echo \"Exit: $?\")",
+      "Bash(npm ls:*)",
+      "Bash(node -e \"const pkg = require\\('./node_modules/@react-pdf/renderer/package.json'\\); console.log\\(pkg.version\\)\")"
     ]
   }
 }

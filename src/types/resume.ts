@@ -86,10 +86,11 @@ export interface ResumeData {
 }
 
 export type DateFormat = 'MM/YYYY' | 'Mon YYYY' | 'Month YYYY' | 'YYYY';
-export type FontFamily = 'Georgia' | 'Garamond' | 'Merriweather' | 'Lato' | 'Source Sans Pro' | 'Libre Baskerville';
+// Built-in font names. Custom uploaded fonts are stored as arbitrary strings.
+export type FontFamily = 'Lora' | 'EB Garamond' | 'Merriweather' | 'Lato' | 'Source Sans 3' | 'Libre Baskerville';
 
 export interface DesignSettings {
-  fontFamily: FontFamily;
+  fontFamily: string; // FontFamily for built-ins, or any string for custom uploaded fonts
   baseFontSize: number;      // pt, range: 9–12 (body text base)
   nameFontSize: number;      // pt, range: 16–32
   sectionHeaderFontSize: number; // pt, range: 8–14
@@ -105,7 +106,7 @@ export interface DesignSettings {
 }
 
 export const defaultDesign: DesignSettings = {
-  fontFamily: 'Georgia',
+  fontFamily: 'Lora',
   baseFontSize: 10,
   nameFontSize: 22,
   sectionHeaderFontSize: 10,

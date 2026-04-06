@@ -1,21 +1,46 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { FilteredResumeData, DesignSettings } from '../../types/resume';
+import { Document, Font, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { FilteredResumeData, DesignSettings, DateFormat } from '../../types/resume';
 
-// Font mapping: @react-pdf/renderer built-in fonts are used to avoid requiring
-// external TTF files. Drop real TTF files in /public/fonts/ and update Font.register
-// calls here to get exact font matching.
-// Built-in fonts available: Helvetica, Courier, Times-Roman (and their variants)
-function resolvedFontFamily(fontFamily: string): string {
-  if (
-    fontFamily === 'Georgia' ||
-    fontFamily === 'Garamond' ||
-    fontFamily === 'Merriweather' ||
-    fontFamily === 'Libre Baskerville'
-  ) {
-    return 'Times-Roman';
+// react-pdf's font fetch requires absolute URLs — root-relative paths may not
+// resolve correctly inside its rendering context.
+const origin = window.location.origin;
+function f(name: string) { return `${origin}/fonts/${name}`; }
+
+Font.register({ family: 'Lora', fonts: [{ src: f('lora-400.woff'), fontWeight: 400 }, { src: f('lora-400-italic.woff'), fontWeight: 400, fontStyle: 'italic' }, { src: f('lora-700.woff'), fontWeight: 700 }] });
+Font.register({ family: 'EB Garamond', fonts: [{ src: f('eb-garamond-400.woff'), fontWeight: 400 }, { src: f('eb-garamond-400-italic.woff'), fontWeight: 400, fontStyle: 'italic' }, { src: f('eb-garamond-700.woff'), fontWeight: 700 }] });
+Font.register({ family: 'Merriweather', fonts: [{ src: f('merriweather-400.woff'), fontWeight: 400 }, { src: f('merriweather-400-italic.woff'), fontWeight: 400, fontStyle: 'italic' }, { src: f('merriweather-700.woff'), fontWeight: 700 }] });
+Font.register({ family: 'Lato', fonts: [{ src: f('lato-400.woff'), fontWeight: 400 }, { src: f('lato-400-italic.woff'), fontWeight: 400, fontStyle: 'italic' }, { src: f('lato-700.woff'), fontWeight: 700 }] });
+Font.register({ family: 'Source Sans 3', fonts: [{ src: f('source-sans-3-400.woff'), fontWeight: 400 }, { src: f('source-sans-3-400-italic.woff'), fontWeight: 400, fontStyle: 'italic' }, { src: f('source-sans-3-700.woff'), fontWeight: 700 }] });
+Font.register({ family: 'Libre Baskerville', fonts: [{ src: f('libre-baskerville-400.woff'), fontWeight: 400 }, { src: f('libre-baskerville-400-italic.woff'), fontWeight: 400, fontStyle: 'italic' }, { src: f('libre-baskerville-700.woff'), fontWeight: 700 }] });
+
+const REGISTERED_FONTS = new Set(['Lora', 'EB Garamond', 'Merriweather', 'Lato', 'Source Sans 3', 'Libre Baskerville']);
+
+// Maps old font names (pre-rename) and any unregistered font to a safe registered fallback.
+const FONT_MIGRATION: Record<string, string> = {
+  'Georgia': 'Lora',
+  'Garamond': 'EB Garamond',
+  'Source Sans Pro': 'Source Sans 3',
+};
+
+function resolveFont(fontFamily: string): string {
+  if (REGISTERED_FONTS.has(fontFamily)) return fontFamily;
+  return FONT_MIGRATION[fontFamily] ?? 'Lora';
+}
+
+function formatDate(dateStr: string | null, format: DateFormat): string {
+  if (!dateStr) return 'Present';
+  const [year, month] = dateStr.split('-');
+  if (!month) return year;
+  const monthIndex = parseInt(month, 10) - 1;
+  const monthsShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthsFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  switch (format) {
+    case 'MM/YYYY': return `${month}/${year}`;
+    case 'Mon YYYY': return `${monthsShort[monthIndex]} ${year}`;
+    case 'Month YYYY': return `${monthsFull[monthIndex]} ${year}`;
+    case 'YYYY': return year;
+    default: return `${month}/${year}`;
   }
-  // Lato, Source Sans Pro -> Helvetica
-  return 'Helvetica';
 }
 
 // These optional fields mirror DocumentProps so that React.createElement(ResumePDF, ...)
@@ -38,6 +63,8 @@ interface ResumePDFProps {
 export function ResumePDF({ data, design }: ResumePDFProps) {
   const styles = createStyles(design);
   const { contact, summary, sections, experience, education, skills, projects } = data;
+  const showContact = sections.some((s) => s.type === 'contact');
+  const showSummary = sections.some((s) => s.type === 'summary');
 
   function renderExperience(label: string) {
     return (
@@ -52,7 +79,7 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
                 <Text style={styles.company}>{exp.company}</Text>
               </View>
               <Text style={styles.dates}>
-                {exp.startDate} – {exp.endDate ?? 'Present'}
+                {formatDate(exp.startDate, design.dateFormat)} – {formatDate(exp.endDate, design.dateFormat)}
               </Text>
             </View>
             <Text style={{ fontSize: design.subheaderFontSize, marginBottom: 2, color: '#444' }}>
@@ -84,7 +111,7 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
                 <Text style={styles.company}>{edu.institution}</Text>
               </View>
               <Text style={styles.dates}>
-                {edu.startDate} – {edu.endDate}
+                {formatDate(edu.startDate, design.dateFormat)} – {formatDate(edu.endDate || null, design.dateFormat)}
               </Text>
             </View>
             <Text style={{ fontSize: design.subheaderFontSize, color: '#444' }}>
@@ -163,17 +190,19 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
     <Document>
       <Page size="LETTER" style={styles.page}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.name}>{contact.name}</Text>
-          <Text style={styles.contactLine}>
-            {[contact.email, contact.phone, contact.location, contact.linkedin, contact.github, contact.website]
-              .filter(Boolean)
-              .join(' · ')}
-          </Text>
-        </View>
+        {showContact && (
+          <View style={styles.header}>
+            <Text style={styles.name}>{contact.name}</Text>
+            <Text style={styles.contactLine}>
+              {[contact.email, contact.phone, contact.location, contact.linkedin, contact.github, contact.website]
+                .filter(Boolean)
+                .join(' · ')}
+            </Text>
+          </View>
+        )}
 
         {/* Summary */}
-        {summary ? (
+        {showSummary && summary ? (
           <Text
             style={{
               marginBottom: design.sectionSpacing,
@@ -194,7 +223,7 @@ export function ResumePDF({ data, design }: ResumePDFProps) {
 }
 
 function createStyles(design: DesignSettings) {
-  const fontFamily = resolvedFontFamily(design.fontFamily);
+  const fontFamily = resolveFont(design.fontFamily);
 
   return StyleSheet.create({
     page: {

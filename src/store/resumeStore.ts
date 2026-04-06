@@ -39,6 +39,7 @@ interface ResumeStore {
   // Local mutations — experience
   addExperience: (exp: Omit<WorkExperience, 'id' | 'order'>) => void;
   updateExperience: (id: string, patch: Partial<WorkExperience>) => void;
+  deleteExperience: (id: string) => void;
   toggleExperience: (id: string) => void;
   reorderExperience: (activeId: string, overId: string) => void;
 
@@ -55,15 +56,23 @@ interface ResumeStore {
 
   // Local mutations — education
   addEducation: (edu: Omit<Education, 'id' | 'order'>) => void;
+  updateEducation: (id: string, patch: Partial<Education>) => void;
+  deleteEducation: (id: string) => void;
   toggleEducation: (id: string) => void;
 
   // Local mutations — projects
   addProject: (project: Omit<Project, 'id' | 'order'>) => void;
+  updateProject: (id: string, patch: Partial<Project>) => void;
+  deleteProject: (id: string) => void;
   toggleProject: (id: string) => void;
+  reorderProjects: (activeId: string, overId: string) => void;
 
   // Local mutations — skills
   addSkillGroup: (group: Omit<SkillGroup, 'id' | 'order'>) => void;
+  updateSkillGroup: (id: string, patch: Partial<SkillGroup>) => void;
+  deleteSkillGroup: (id: string) => void;
   toggleSkillGroup: (id: string) => void;
+  reorderSkillGroups: (activeId: string, overId: string) => void;
 
   // Portability
   exportJSON: () => string;
@@ -314,6 +323,16 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     });
   },
 
+  deleteExperience: (id: string) => {
+    set((s) => {
+      if (!s.resume) return s;
+      const filtered = s.resume.experience
+        .filter((exp: WorkExperience) => exp.id !== id)
+        .map((exp: WorkExperience, i: number) => ({ ...exp, order: i }));
+      return { resume: touch({ ...s.resume, experience: filtered }) };
+    });
+  },
+
   toggleExperience: (id: string) => {
     set((s) => {
       if (!s.resume) return s;
@@ -484,6 +503,30 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     });
   },
 
+  updateEducation: (id: string, patch: Partial<Education>) => {
+    set((s) => {
+      if (!s.resume) return s;
+      return {
+        resume: touch({
+          ...s.resume,
+          education: s.resume.education.map((edu: Education) =>
+            edu.id === id ? { ...edu, ...patch } : edu
+          ),
+        }),
+      };
+    });
+  },
+
+  deleteEducation: (id: string) => {
+    set((s) => {
+      if (!s.resume) return s;
+      const filtered = s.resume.education
+        .filter((edu: Education) => edu.id !== id)
+        .map((edu: Education, i: number) => ({ ...edu, order: i }));
+      return { resume: touch({ ...s.resume, education: filtered }) };
+    });
+  },
+
   toggleEducation: (id: string) => {
     set((s) => {
       if (!s.resume) return s;
@@ -516,6 +559,30 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     });
   },
 
+  updateProject: (id: string, patch: Partial<Project>) => {
+    set((s) => {
+      if (!s.resume) return s;
+      return {
+        resume: touch({
+          ...s.resume,
+          projects: s.resume.projects.map((p: Project) =>
+            p.id === id ? { ...p, ...patch } : p
+          ),
+        }),
+      };
+    });
+  },
+
+  deleteProject: (id: string) => {
+    set((s) => {
+      if (!s.resume) return s;
+      const filtered = s.resume.projects
+        .filter((p: Project) => p.id !== id)
+        .map((p: Project, i: number) => ({ ...p, order: i }));
+      return { resume: touch({ ...s.resume, projects: filtered }) };
+    });
+  },
+
   toggleProject: (id: string) => {
     set((s) => {
       if (!s.resume) return s;
@@ -527,6 +594,20 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
           ),
         }),
       };
+    });
+  },
+
+  reorderProjects: (activeId: string, overId: string) => {
+    set((s) => {
+      if (!s.resume) return s;
+      const projects = s.resume.projects;
+      const oldIndex = projects.findIndex((p: Project) => p.id === activeId);
+      const newIndex = projects.findIndex((p: Project) => p.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return s;
+      const reordered = arrayMove(projects, oldIndex, newIndex).map(
+        (p: Project, i: number) => ({ ...p, order: i })
+      );
+      return { resume: touch({ ...s.resume, projects: reordered }) };
     });
   },
 
@@ -548,6 +629,30 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     });
   },
 
+  updateSkillGroup: (id: string, patch: Partial<SkillGroup>) => {
+    set((s) => {
+      if (!s.resume) return s;
+      return {
+        resume: touch({
+          ...s.resume,
+          skills: s.resume.skills.map((sg: SkillGroup) =>
+            sg.id === id ? { ...sg, ...patch } : sg
+          ),
+        }),
+      };
+    });
+  },
+
+  deleteSkillGroup: (id: string) => {
+    set((s) => {
+      if (!s.resume) return s;
+      const filtered = s.resume.skills
+        .filter((sg: SkillGroup) => sg.id !== id)
+        .map((sg: SkillGroup, i: number) => ({ ...sg, order: i }));
+      return { resume: touch({ ...s.resume, skills: filtered }) };
+    });
+  },
+
   toggleSkillGroup: (id: string) => {
     set((s) => {
       if (!s.resume) return s;
@@ -559,6 +664,20 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
           ),
         }),
       };
+    });
+  },
+
+  reorderSkillGroups: (activeId: string, overId: string) => {
+    set((s) => {
+      if (!s.resume) return s;
+      const skills = s.resume.skills;
+      const oldIndex = skills.findIndex((sg: SkillGroup) => sg.id === activeId);
+      const newIndex = skills.findIndex((sg: SkillGroup) => sg.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return s;
+      const reordered = arrayMove(skills, oldIndex, newIndex).map(
+        (sg: SkillGroup, i: number) => ({ ...sg, order: i })
+      );
+      return { resume: touch({ ...s.resume, skills: reordered }) };
     });
   },
 

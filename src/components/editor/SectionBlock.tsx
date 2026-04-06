@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
+import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Section } from '../../types/resume';
 import { useResumeStore } from '../../store/resumeStore';
 import { DragHandle } from './DragHandle';
 import { Checkbox } from './Checkbox';
 import { ExperienceList } from './ExperienceList';
+import { SortableProjectCard } from './SortableProjectCard';
+import { SortableSkillGroupCard } from './SortableSkillGroupCard';
 
 interface SectionBlockProps {
   section: Section;
@@ -113,34 +117,149 @@ function SummaryEditor() {
 function EducationList() {
   const resume = useResumeStore((s) => s.resume);
   const toggleEducation = useResumeStore((s) => s.toggleEducation);
+  const deleteEducation = useResumeStore((s) => s.deleteEducation);
+  const addEducation = useResumeStore((s) => s.addEducation);
+
+  const [showForm, setShowForm] = useState(false);
+  const [institution, setInstitution] = useState('');
+  const [degree, setDegree] = useState('');
+  const [field, setField] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [gpa, setGpa] = useState('');
 
   const sorted = [...(resume?.education ?? [])].sort((a, b) => a.order - b.order);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!institution.trim()) return;
+    addEducation({
+      institution: institution.trim(),
+      degree: degree.trim(),
+      field: field.trim(),
+      startDate: startDate.trim(),
+      endDate: endDate.trim(),
+      gpa: gpa.trim() || undefined,
+      visible: true,
+    });
+    setInstitution('');
+    setDegree('');
+    setField('');
+    setStartDate('');
+    setEndDate('');
+    setGpa('');
+    setShowForm(false);
+  }
+
+  const inputClass =
+    'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors duration-150';
 
   return (
     <div className="space-y-2">
       {sorted.map((edu) => (
         <div
           key={edu.id}
-          className="group rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3"
+          className="group rounded-lg border border-zinc-700/50 bg-zinc-800/50 overflow-hidden"
         >
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-2 px-3 pt-3 pb-2">
             <Checkbox checked={edu.visible} onChange={() => toggleEducation(edu.id)} />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-zinc-100 truncate">{edu.institution}</div>
-              <div className="text-xs text-zinc-400 mt-0.5">
+            <div className="flex-1 min-w-0 flex items-start justify-between gap-2">
+              <div className="text-sm font-semibold text-zinc-100 truncate leading-snug">{edu.institution}</div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="bg-zinc-800 text-zinc-400 text-xs px-2 py-0.5 rounded-full whitespace-nowrap border border-zinc-700/60">
+                  {edu.startDate} – {edu.endDate}
+                </span>
+                <button
+                  onClick={() => deleteEducation(edu.id)}
+                  className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-opacity duration-150"
+                  aria-label="Delete education"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="h-px bg-zinc-700/40 mx-3" />
+          <div className="px-3 pb-3 pt-2 ml-6">
+            <div className="border-l-2 border-zinc-700/60 pl-3">
+              <div className="text-xs text-zinc-300 leading-relaxed">
                 {edu.degree} in {edu.field}
-                {edu.gpa ? <span className="text-zinc-500"> &middot; GPA: {edu.gpa}</span> : ''}
               </div>
-              <div className="text-xs text-zinc-500 mt-0.5">
-                {edu.startDate} – {edu.endDate}
-              </div>
+              {edu.gpa && (
+                <div className="text-xs text-zinc-500 mt-0.5">GPA: {edu.gpa}</div>
+              )}
             </div>
           </div>
         </div>
       ))}
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3 space-y-2"
+        >
+          <div className="grid grid-cols-2 gap-2">
+            <div className="col-span-2">
+              <input
+                className={inputClass}
+                placeholder="Institution *"
+                value={institution}
+                onChange={(e) => setInstitution(e.target.value)}
+                required
+              />
+            </div>
+            <input
+              className={inputClass}
+              placeholder="Degree"
+              value={degree}
+              onChange={(e) => setDegree(e.target.value)}
+            />
+            <input
+              className={inputClass}
+              placeholder="Field of Study"
+              value={field}
+              onChange={(e) => setField(e.target.value)}
+            />
+            <input
+              className={inputClass}
+              placeholder="Start Date (MM/YYYY)"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <input
+              className={inputClass}
+              placeholder="End Date (MM/YYYY)"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            <div className="col-span-2">
+              <input
+                className={inputClass}
+                placeholder="GPA (optional)"
+                value={gpa}
+                onChange={(e) => setGpa(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              type="submit"
+              className="bg-zinc-700 hover:bg-zinc-600 text-zinc-100 text-xs px-3 py-1.5 rounded-md transition-colors duration-150"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="text-zinc-500 hover:text-zinc-300 text-xs px-3 py-1.5 transition-colors duration-150"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
       <button
-        onClick={() => console.log('Add Education — stub for v1')}
-        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
+        onClick={() => setShowForm((v) => !v)}
+        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-1.5 text-xs transition-colors duration-150"
       >
         + Add Education
       </button>
@@ -151,38 +270,87 @@ function EducationList() {
 // ---- SkillsList ----
 function SkillsList() {
   const resume = useResumeStore((s) => s.resume);
-  const toggleSkillGroup = useResumeStore((s) => s.toggleSkillGroup);
+  const addSkillGroup = useResumeStore((s) => s.addSkillGroup);
+  const reorderSkillGroups = useResumeStore((s) => s.reorderSkillGroups);
+
+  const [showForm, setShowForm] = useState(false);
+  const [category, setCategory] = useState('');
+  const [skillsRaw, setSkillsRaw] = useState('');
 
   const sorted = [...(resume?.skills ?? [])].sort((a, b) => a.order - b.order);
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      reorderSkillGroups(String(active.id), String(over.id));
+    }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!category.trim()) return;
+    const skillsArray = skillsRaw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    addSkillGroup({ category: category.trim(), skills: skillsArray, visible: true });
+    setCategory('');
+    setSkillsRaw('');
+    setShowForm(false);
+  }
+
+  const inputClass =
+    'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors duration-150';
+
   return (
-    <div className="space-y-2">
-      {sorted.map((group) => (
-        <div
-          key={group.id}
-          className="group rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3"
+    <div>
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={sorted.map((g) => g.id)} strategy={verticalListSortingStrategy}>
+          {sorted.map((group) => (
+            <SortableSkillGroupCard key={group.id} group={group} />
+          ))}
+        </SortableContext>
+      </DndContext>
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3 space-y-2"
         >
-          <div className="flex items-start gap-2">
-            <Checkbox checked={group.visible} onChange={() => toggleSkillGroup(group.id)} />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-zinc-100 mb-2">{group.category}</div>
-              <div className="flex flex-wrap gap-1.5">
-                {group.skills.map((skill, i) => (
-                  <span
-                    key={i}
-                    className="inline-block bg-zinc-700/60 border border-zinc-600/50 text-zinc-300 text-xs px-2 py-0.5 rounded-full"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div className="space-y-2">
+            <input
+              className={inputClass}
+              placeholder="Category *"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+            />
+            <input
+              className={inputClass}
+              placeholder="Skills (comma-separated, e.g. React, TypeScript, Node)"
+              value={skillsRaw}
+              onChange={(e) => setSkillsRaw(e.target.value)}
+            />
           </div>
-        </div>
-      ))}
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              type="submit"
+              className="bg-zinc-700 hover:bg-zinc-600 text-zinc-100 text-xs px-3 py-1.5 rounded-md transition-colors duration-150"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="text-zinc-500 hover:text-zinc-300 text-xs px-3 py-1.5 transition-colors duration-150"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
       <button
-        onClick={() => console.log('Add Skill Group — stub for v1')}
-        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
+        onClick={() => setShowForm((v) => !v)}
+        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-1.5 text-xs transition-colors duration-150"
       >
         + Add Skill Group
       </button>
@@ -193,41 +361,98 @@ function SkillsList() {
 // ---- ProjectsList ----
 function ProjectsList() {
   const resume = useResumeStore((s) => s.resume);
-  const toggleProject = useResumeStore((s) => s.toggleProject);
+  const addProject = useResumeStore((s) => s.addProject);
+  const reorderProjects = useResumeStore((s) => s.reorderProjects);
+
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [link, setLink] = useState('');
 
   const sorted = [...(resume?.projects ?? [])].sort((a, b) => a.order - b.order);
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      reorderProjects(String(active.id), String(over.id));
+    }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    addProject({
+      name: name.trim(),
+      description: description.trim() || '',
+      link: link.trim() || undefined,
+      bullets: [],
+      visible: true,
+    });
+    setName('');
+    setDescription('');
+    setLink('');
+    setShowForm(false);
+  }
+
+  const inputClass =
+    'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors duration-150';
+
   return (
-    <div className="space-y-2">
-      {sorted.map((project) => (
-        <div
-          key={project.id}
-          className="group rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3"
+    <div>
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={sorted.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+          {sorted.map((project) => (
+            <SortableProjectCard key={project.id} project={project} />
+          ))}
+        </SortableContext>
+      </DndContext>
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3 space-y-2"
         >
-          <div className="flex items-start gap-2">
-            <Checkbox checked={project.visible} onChange={() => toggleProject(project.id)} />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-zinc-100">{project.name}</div>
-              {project.link && (
-                <div className="text-xs text-blue-400 truncate mt-0.5">{project.link}</div>
-              )}
-              {project.description && (
-                <div className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
-                  {project.description}
-                </div>
-              )}
-              {project.bullets.length > 0 && (
-                <div className="text-xs text-zinc-600 mt-1">
-                  {project.bullets.length} bullet{project.bullets.length !== 1 ? 's' : ''}
-                </div>
-              )}
-            </div>
+          <div className="space-y-2">
+            <input
+              className={inputClass}
+              placeholder="Project Name *"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <textarea
+              className={`${inputClass} resize-none`}
+              placeholder="Description (optional)"
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <input
+              className={inputClass}
+              placeholder="Link (optional)"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+            />
           </div>
-        </div>
-      ))}
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              type="submit"
+              className="bg-zinc-700 hover:bg-zinc-600 text-zinc-100 text-xs px-3 py-1.5 rounded-md transition-colors duration-150"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="text-zinc-500 hover:text-zinc-300 text-xs px-3 py-1.5 transition-colors duration-150"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
       <button
-        onClick={() => console.log('Add Project — stub for v1')}
-        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-2 text-sm transition-colors duration-150"
+        onClick={() => setShowForm((v) => !v)}
+        className="mt-1 w-full border border-dashed border-zinc-700 hover:border-zinc-500 text-zinc-500 hover:text-zinc-300 rounded-lg py-1.5 text-xs transition-colors duration-150"
       >
         + Add Project
       </button>
@@ -274,7 +499,7 @@ export function SectionBlock({ section, dragHandleProps }: SectionBlockProps) {
           checked={section.visible}
           onChange={() => toggleSection(section.id)}
         />
-        <span className="flex-1 text-base font-medium text-zinc-100">
+        <span className="flex-1 text-lg font-semibold text-zinc-100">
           {section.label}
         </span>
         <button
