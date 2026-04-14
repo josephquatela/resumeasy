@@ -26,7 +26,13 @@ export function useFilteredResume(resume: ResumeData | null): FilteredResumeData
         .sort((a, b) => a.order - b.order),
       projects: resume.projects
         .filter((p) => p.visible)
-        .sort((a, b) => a.order - b.order),
+        .sort((a, b) => a.order - b.order)
+        .map((p) => ({
+          ...p,
+          bullets: p.bullets
+            .filter((b) => b.visible)
+            .sort((a, b) => a.order - b.order),
+        })),
     };
   }, [resume]);
 }
